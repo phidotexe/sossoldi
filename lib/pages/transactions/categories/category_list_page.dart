@@ -19,7 +19,10 @@ class _CategoryListState extends ConsumerState<CategoryList> {
   @override
   Widget build(BuildContext context) {
     final categorysList = ref.watch(categoriesProvider);
+
+    // ref.listen è utile per azioni side-effect, ok lasciarlo
     ref.listen(selectedCategoryProvider, (_, __) {});
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -70,42 +73,79 @@ class _CategoryListState extends ConsumerState<CategoryList> {
               ),
             ),
             categorysList.when(
-              data: (categorys) => ListView.separated(
-                itemCount: categorys.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: Sizes.lg),
-                itemBuilder: (context, i) {
-                  CategoryTransaction category = categorys[i];
-                  return DefaultCard(
-                    onTap: () {
-                      ref.read(selectedCategoryProvider.notifier).state =
-                          category;
-                      Navigator.of(context).pushNamed('/add-category');
-                    },
-                    child: Row(
-                      children: [
-                        RoundedIcon(
-                          icon: iconList[category.symbol],
-                          backgroundColor:
-                              categoryColorListTheme[category.color],
-                          size: 30,
+              data: (categorys) {
+                // converto in una lista modificabile per il drag&drop
+                final currentList = categorys.toList();
+
+                return ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: currentList.length,
+
+                  // Logica di riordinamento
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (oldIndex < newIndex) {
+                        newIndex -= 1;
+                      }
+                      final item = currentList.removeAt(oldIndex);
+                      currentList.insert(newIndex, item);
+                    });
+
+                    // Salva il nuovo ordine nel DB
+                    ref.read(categoriesProvider.notifier).reorderCategories(currentList);
+                  },
+
+                  // stile durante drag&drop
+                  proxyDecorator: (child, index, animation) {
+                    return Material(
+                      elevation: 4,
+                      color: Colors.transparent,
+                      shadowColor: Colors.black.withOpacity(0.2),
+                      child: child,
+                    );
+                  },
+
+                  itemBuilder: (context, i) {
+                    CategoryTransaction category = currentList[i];
+
+                    return Container(
+                      key: ValueKey(category.id),
+                      margin: const EdgeInsets.only(bottom: Sizes.lg),
+                      child: DefaultCard(
+                        onTap: () {
+                          ref.read(selectedCategoryProvider.notifier).state = category;
+                          Navigator.of(context).pushNamed('/add-category');
+                        },
+                        child: Row(
+                          children: [
+                            // Icona di trascinamento (handle)
+                            const Icon(Icons.drag_handle, color: Colors.grey),
+                            const SizedBox(width: Sizes.md),
+
+                            RoundedIcon(
+                              icon: iconList[category.symbol],
+                              backgroundColor: categoryColorListTheme[category.color],
+                              size: 30,
+                            ),
+                            const SizedBox(width: Sizes.md),
+                            Expanded( // Expanded evita overflow se il testo è lungo
+                              child: Text(
+                                category.name,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .copyWith(
+                                    color: Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: Sizes.md),
-                        Text(
-                          category.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge!
-                              .copyWith(
-                                  color: Theme.of(context).colorScheme.primary),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                      ),
+                    );
+                  },
+                );
+              },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Text('Error: $err'),
             ),

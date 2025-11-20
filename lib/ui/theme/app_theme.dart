@@ -33,7 +33,7 @@ class AppTheme {
       backgroundColor: blue5,
       shape: CircleBorder(),
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       indicator: BoxDecoration(
         borderRadius: BorderRadius.circular(Sizes.borderRadius * 6),
         color: blue5,
@@ -260,7 +260,7 @@ class AppTheme {
       backgroundColor: darkBlue1,
       shape: CircleBorder(),
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       indicator: BoxDecoration(
         borderRadius: BorderRadius.circular(Sizes.borderRadius * 6),
         color: darkBlue5,

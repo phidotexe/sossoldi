@@ -79,6 +79,18 @@ class AsyncCategoriesNotifier extends AsyncNotifier<List<CategoryTransaction>> {
   Future<List<CategoryTransaction>> getCategories() async {
     return _getCategories();
   }
+
+  Future<void> reorderCategories(List<CategoryTransaction> newOrder) async {
+    state = AsyncData(newOrder);
+    try {
+      await CategoryTransactionMethods().updateCategoryOrders(newOrder);
+    } catch (e) {
+      // if the save operation fails, reload data from DB
+      ref.invalidateSelf();
+      print("Errore nel salvataggio dell'ordine: $e");
+    }
+  }
+
 }
 
 final categoriesProvider =

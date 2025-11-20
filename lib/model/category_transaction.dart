@@ -12,6 +12,7 @@ class CategoryTransactionFields extends BaseEntityFields {
   static String color = 'color';
   static String note = 'note';
   static String parent = 'parent';
+  static String order = 'order';
   static String createdAt = BaseEntityFields.getCreatedAt;
   static String updatedAt = BaseEntityFields.getUpdatedAt;
 
@@ -23,6 +24,7 @@ class CategoryTransactionFields extends BaseEntityFields {
     color,
     note,
     parent,
+    order,
     BaseEntityFields.createdAt,
     BaseEntityFields.updatedAt
   ];
@@ -42,6 +44,7 @@ class CategoryTransaction extends BaseEntity {
   final int color;
   final String? note;
   final int? parent;
+  final int? order;
 
   const CategoryTransaction({
     super.id,
@@ -51,6 +54,7 @@ class CategoryTransaction extends BaseEntity {
     required this.color,
     this.note,
     this.parent,
+    this.order,
     super.createdAt,
     super.updatedAt,
   });
@@ -63,6 +67,7 @@ class CategoryTransaction extends BaseEntity {
           int? color,
           String? note,
           int? parent,
+            int? order,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       CategoryTransaction(
@@ -73,6 +78,7 @@ class CategoryTransaction extends BaseEntity {
           color: color ?? this.color,
           note: note ?? this.note,
           parent: parent ?? this.parent,
+          order: order ?? this.order,
           createdAt: createdAt ?? this.createdAt,
           updatedAt: updatedAt ?? this.updatedAt);
 
@@ -86,6 +92,7 @@ class CategoryTransaction extends BaseEntity {
           color: json[CategoryTransactionFields.color] as int,
           note: json[CategoryTransactionFields.note] as String?,
           parent: json[CategoryTransactionFields.parent] as int?,
+          order: json[CategoryTransactionFields.order] as int?,
           createdAt: DateTime.parse(json[BaseEntityFields.createdAt] as String),
           updatedAt:
               DateTime.parse(json[BaseEntityFields.updatedAt] as String));
@@ -99,6 +106,7 @@ class CategoryTransaction extends BaseEntity {
         CategoryTransactionFields.color: color,
         CategoryTransactionFields.note: note,
         CategoryTransactionFields.parent: parent,
+    CategoryTransactionFields.order: order,
         BaseEntityFields.createdAt: update
             ? createdAt?.toIso8601String()
             : DateTime.now().toIso8601String(),
@@ -107,7 +115,7 @@ class CategoryTransaction extends BaseEntity {
 }
 
 class CategoryTransactionMethods extends SossoldiDatabase {
-  final orderByASC = '${CategoryTransactionFields.createdAt} ASC';
+  final orderByASC = '`${CategoryTransactionFields.order}` ASC, ${CategoryTransactionFields.updatedAt} ASC';
 
   Future<CategoryTransaction> insert(CategoryTransaction item) async {
     final db = await database;
@@ -198,5 +206,22 @@ class CategoryTransactionMethods extends SossoldiDatabase {
       case CategoryTransactionType.expense:
         return TransactionType.expense;
     }
+  }
+
+  Future<void> updateCategoryOrders(List<CategoryTransaction> categories) async {
+    final db = await database;
+    final batch = db.batch();
+
+    for (int i = 0; i < categories.length; i++) {
+      // Aggiorniamo solo il campo 'order' per ogni ID
+      batch.update(
+        categoryTransactionTable,
+        {CategoryTransactionFields.order: i}, // L'indice della lista diventa l'ordine DB
+        where: '${CategoryTransactionFields.id} = ?',
+        whereArgs: [categories[i].id],
+      );
+    }
+
+    await batch.commit(noResult: true);
   }
 }
