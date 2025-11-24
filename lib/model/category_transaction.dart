@@ -115,7 +115,7 @@ class CategoryTransaction extends BaseEntity {
 }
 
 class CategoryTransactionMethods extends SossoldiDatabase {
-  final orderByASC = '`${CategoryTransactionFields.order}` ASC, ${CategoryTransactionFields.updatedAt} ASC';
+  final orderByASC = '`${CategoryTransactionFields.order}` ASC, ${CategoryTransactionFields.createdAt} ASC';
 
   Future<CategoryTransaction> insert(CategoryTransaction item) async {
     final db = await database;
