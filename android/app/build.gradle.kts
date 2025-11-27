@@ -71,6 +71,8 @@ android {
 
         debug {
             signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix="dev"
+            manifestPlaceholders["appLabel"] = "Sossoldi DEV"
         }
 
     }

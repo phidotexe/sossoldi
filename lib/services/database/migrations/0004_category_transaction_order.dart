@@ -1,10 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import '../../../model/category_transaction.dart';
-import '../../../model/transaction.dart';
 import '../migration_base.dart';
 
 // Models
-import '/model/recurring_transaction.dart';
 
 class CategoryTransactionOrder extends Migration {
   CategoryTransactionOrder()
