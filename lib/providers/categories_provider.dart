@@ -90,7 +90,6 @@ class AsyncCategoriesNotifier extends AsyncNotifier<List<CategoryTransaction>> {
       print("Errore nel salvataggio dell'ordine: $e");
     }
   }
-
 }
 
 final categoriesProvider =

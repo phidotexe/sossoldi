@@ -67,7 +67,7 @@ class CategoryTransaction extends BaseEntity {
           int? color,
           String? note,
           int? parent,
-            int? order,
+          int? order,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
       CategoryTransaction(
@@ -106,7 +106,7 @@ class CategoryTransaction extends BaseEntity {
         CategoryTransactionFields.color: color,
         CategoryTransactionFields.note: note,
         CategoryTransactionFields.parent: parent,
-    CategoryTransactionFields.order: order,
+        CategoryTransactionFields.order: order,
         BaseEntityFields.createdAt: update
             ? createdAt?.toIso8601String()
             : DateTime.now().toIso8601String(),
@@ -115,7 +115,8 @@ class CategoryTransaction extends BaseEntity {
 }
 
 class CategoryTransactionMethods extends SossoldiDatabase {
-  final orderByASC = '`${CategoryTransactionFields.order}` ASC, ${CategoryTransactionFields.createdAt} ASC';
+  final orderByASC =
+      '`${CategoryTransactionFields.order}` ASC, ${CategoryTransactionFields.createdAt} ASC';
 
   Future<CategoryTransaction> insert(CategoryTransaction item) async {
     final db = await database;
@@ -208,7 +209,8 @@ class CategoryTransactionMethods extends SossoldiDatabase {
     }
   }
 
-  Future<void> updateCategoryOrders(List<CategoryTransaction> categories) async {
+  Future<void> updateCategoryOrders(
+      List<CategoryTransaction> categories) async {
     final db = await database;
     final batch = db.batch();
 
@@ -216,7 +218,9 @@ class CategoryTransactionMethods extends SossoldiDatabase {
       // Aggiorniamo solo il campo 'order' per ogni ID
       batch.update(
         categoryTransactionTable,
-        {CategoryTransactionFields.order: i}, // L'indice della lista diventa l'ordine DB
+        {
+          CategoryTransactionFields.order: i
+        }, // L'indice della lista diventa l'ordine DB
         where: '${CategoryTransactionFields.id} = ?',
         whereArgs: [categories[i].id],
       );

@@ -93,7 +93,9 @@ class _CategoryListState extends ConsumerState<CategoryList> {
                     });
 
                     // Salva il nuovo ordine nel DB
-                    ref.read(categoriesProvider.notifier).reorderCategories(currentList);
+                    ref
+                        .read(categoriesProvider.notifier)
+                        .reorderCategories(currentList);
                   },
 
                   // stile durante drag&drop
@@ -114,7 +116,8 @@ class _CategoryListState extends ConsumerState<CategoryList> {
                       margin: const EdgeInsets.only(bottom: Sizes.lg),
                       child: DefaultCard(
                         onTap: () {
-                          ref.read(selectedCategoryProvider.notifier).state = category;
+                          ref.read(selectedCategoryProvider.notifier).state =
+                              category;
                           Navigator.of(context).pushNamed('/add-category');
                         },
                         child: Row(
@@ -125,18 +128,22 @@ class _CategoryListState extends ConsumerState<CategoryList> {
 
                             RoundedIcon(
                               icon: iconList[category.symbol],
-                              backgroundColor: categoryColorListTheme[category.color],
+                              backgroundColor:
+                                  categoryColorListTheme[category.color],
                               size: 30,
                             ),
                             const SizedBox(width: Sizes.md),
-                            Expanded( // Expanded evita overflow se il testo è lungo
+                            Expanded(
+                              // Expanded evita overflow se il testo è lungo
                               child: Text(
                                 category.name,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge!
                                     .copyWith(
-                                    color: Theme.of(context).colorScheme.primary),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary),
                               ),
                             ),
                           ],
